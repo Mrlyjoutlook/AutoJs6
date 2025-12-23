@@ -183,7 +183,7 @@ module.exports = function (scriptRuntime, scope) {
             text = getAllText(imgOrRegion, options);
         }
 
-        let numberPattern = /-?\d+\.?\d*/g;
+        let numberPattern = /-?\d+(?:\.\d+)?/g;
         let matches = text.match(numberPattern);
         if (!matches) {
             return [];
@@ -229,6 +229,7 @@ module.exports = function (scriptRuntime, scope) {
             let bLeft = b.bounds.left;
 
             // Sort by top position first (with tolerance for same line)
+            // Tolerance of 20 pixels allows text on roughly the same horizontal line to be grouped together
             let tolerance = 20;
             if (Math.abs(aTop - bTop) > tolerance) {
                 return aTop - bTop;
