@@ -8,6 +8,15 @@ import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
 import org.autojs.autojs.core.image.ImageWrapper
 
 /**
+ * MLKit OCR implementation for text recognition.
+ * 
+ * Uses ChineseTextRecognizerOptions which supports recognition of both:
+ * - Chinese characters (Simplified Chinese / 简体中文)
+ * - Latin script (English and other Latin-based languages)
+ * 
+ * This enables mixed language recognition (chi_sim_eng) where text can contain
+ * both Chinese and English characters in the same image.
+ * 
  * Created by SuperMonster003 on Mar 18, 2023.
  */
 // @Reference to TonyJiangWJ/Auto.js (https://github.com/TonyJiangWJ/Auto.js) by SuperMonster003 on Mar 18, 2023.
@@ -15,8 +24,13 @@ class OcrMLKit {
 
     private var recognizer: TextRecognizer? = null
 
+    /**
+     * Initializes the text recognizer if not already initialized.
+     * Uses ChineseTextRecognizerOptions to support both Chinese and English text recognition.
+     */
     private fun initIfNeeded() {
         recognizer ?: let {
+            // ChineseTextRecognizerOptions supports both Chinese and Latin (English) scripts
             recognizer = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
         }
     }
