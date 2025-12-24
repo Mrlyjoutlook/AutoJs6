@@ -357,6 +357,7 @@ dependencies /* GitHub API */ {
 dependencies /* MLKit */ {
     // OCR
     implementation("com.google.mlkit:text-recognition-chinese:16.0.1")
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 
     // Barcode
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
