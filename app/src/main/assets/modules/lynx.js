@@ -10,11 +10,40 @@
      * @param {string} url - The URL to fetch
      * @param {object} options - Optional request options
      * @returns {string} The response body as text
+     * @throws {Error} If URL is invalid or request fails
      */
     function fetch(url, options) {
+        if (!url || typeof url !== 'string') {
+            throw new Error('Invalid URL: URL must be a non-empty string');
+        }
         options = options || {};
         const response = http.get(url, options);
+        if (!response || !response.body) {
+            throw new Error('Failed to fetch URL: ' + url);
+        }
         return response.body.string();
+    }
+    
+    /**
+     * Decode HTML entities (basic implementation)
+     * Note: This handles common entities. For comprehensive decoding, use cheerio module.
+     * @param {string} text - Text with HTML entities
+     * @returns {string} Text with decoded entities
+     */
+    function decodeHtmlEntities(text) {
+        return text
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&#(\d+);/g, function(match, dec) {
+                return String.fromCharCode(dec);
+            })
+            .replace(/&#x([0-9a-f]+);/gi, function(match, hex) {
+                return String.fromCharCode(parseInt(hex, 16));
+            });
     }
     
     /**
@@ -22,18 +51,23 @@
      * @param {string} url - The URL to fetch
      * @param {object} options - Optional request options
      * @returns {string} The response body as plain text (HTML tags removed)
+     * @throws {Error} If URL is invalid or request fails
      */
     function fetchText(url, options) {
-        const content = fetch(url, options);
-        // Simple HTML tag removal (for basic text extraction)
-        return content.replace(/<[^>]*>/g, '')
-                     .replace(/&nbsp;/g, ' ')
-                     .replace(/&amp;/g, '&')
-                     .replace(/&lt;/g, '<')
-                     .replace(/&gt;/g, '>')
-                     .replace(/&quot;/g, '"')
-                     .replace(/&#39;/g, "'")
-                     .trim();
+        if (!url || typeof url !== 'string') {
+            throw new Error('Invalid URL: URL must be a non-empty string');
+        }
+        options = options || {};
+        // Fetch response directly to avoid duplicate HTTP request
+        const response = http.get(url, options);
+        if (!response || !response.body) {
+            throw new Error('Failed to fetch URL: ' + url);
+        }
+        const content = response.body.string();
+        
+        // Remove HTML tags and decode entities
+        const textOnly = content.replace(/<[^>]*>/g, '');
+        return decodeHtmlEntities(textOnly).trim();
     }
     
     /**
@@ -41,10 +75,17 @@
      * @param {string} url - The URL to fetch
      * @param {object} options - Optional request options
      * @returns {object} The response headers
+     * @throws {Error} If URL is invalid or request fails
      */
     function fetchHeaders(url, options) {
+        if (!url || typeof url !== 'string') {
+            throw new Error('Invalid URL: URL must be a non-empty string');
+        }
         options = options || {};
         const response = http.get(url, options);
+        if (!response) {
+            throw new Error('Failed to fetch URL: ' + url);
+        }
         return response.headers;
     }
     
