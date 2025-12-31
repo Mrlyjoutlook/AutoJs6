@@ -31,19 +31,21 @@
      * @returns {string} Text with decoded entities
      */
     function decodeHtmlEntities(text) {
+        // Decode numeric entities first, then named entities
+        // &amp; is decoded last to avoid double-unescaping
         return text
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&amp;/g, '&')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&quot;/g, '"')
-            .replace(/&#39;/g, "'")
             .replace(/&#(\d+);/g, function(match, dec) {
                 return String.fromCharCode(dec);
             })
             .replace(/&#x([0-9a-f]+);/gi, function(match, hex) {
                 return String.fromCharCode(parseInt(hex, 16));
-            });
+            })
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'")
+            .replace(/&amp;/g, '&');  // Must be last to avoid double-unescaping
     }
     
     /**
@@ -52,6 +54,8 @@
      * @param {object} options - Optional request options
      * @returns {string} The response body as plain text (HTML tags removed)
      * @throws {Error} If URL is invalid or request fails
+     * @note This function removes ALL HTML tags including <script> tags.
+     *       For security-critical applications, use a proper HTML sanitizer.
      */
     function fetchText(url, options) {
         if (!url || typeof url !== 'string') {
@@ -65,7 +69,8 @@
         }
         const content = response.body.string();
         
-        // Remove HTML tags and decode entities
+        // Remove HTML tags completely (including script tags and attributes)
+        // This regex removes all tags but doesn't protect against XSS if output is used in HTML context
         const textOnly = content.replace(/<[^>]*>/g, '');
         return decodeHtmlEntities(textOnly).trim();
     }

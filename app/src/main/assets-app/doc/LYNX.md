@@ -119,9 +119,22 @@ for (let key in headers) {
 
 ## Limitations
 
-- Basic HTML entity decoding (supports common entities like &nbsp;, &amp;, etc.)
+- Basic HTML entity decoding (supports common entities like &nbsp;, &amp;, numeric entities)
 - No JavaScript execution (fetches static content only)
 - No CSS or complex HTML parsing (for that, use the cheerio module)
+- The `fetchText()` function is designed for text extraction, NOT for HTML sanitization
+- **Security Note**: If you need to display extracted text in a web view or HTML context, use proper HTML escaping/sanitization to prevent XSS vulnerabilities
+
+## Security Considerations
+
+This module is designed for **extracting text content** from HTML, not for sanitizing HTML for safe display. The output should be treated as plain text:
+
+- ✅ Safe for console output, logging, or text-only display
+- ✅ Safe for file storage as plain text
+- ❌ **Not safe** for direct insertion into HTML without escaping
+- ❌ **Not safe** for use in `eval()` or similar code execution contexts
+
+If you need to use the extracted text in an HTML context, apply proper HTML escaping first.
 
 ## Version
 
